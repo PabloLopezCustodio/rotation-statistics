@@ -1,0 +1,3 @@
+recursive-include src/rotstats/data *.json
+include src/rotstats/*.pyx
+include src/rotstats/*.pxd
