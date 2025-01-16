@@ -89,12 +89,12 @@ class ACG:
     def d_ACG_unprot(self, x):
         return np.exp(self.log_c - 0.5 * self.d * np.log(np.matmul(x.T, LA.solve(self.Lambda, x))))
 
-    def view_ACG(self, n_points=100, combine=False, hold_show=False, el=30, az=45):
+    def view_ACG(self, n_points=100, combine=True, hold_show=False, el=30, az=45, renorm_den=None):
         print('preparing visualisation plot...')
         if self.Lambda is None:
             raise Exception("concentration matrix not set")
         if self.d == 4:
-            self.view_orientation_den(n_points, combine, el=el, az=az)
+            self.view_orientation_den(n_points, combine, el=el, az=az, renorm_den=renorm_den)
         elif self.d == 3:
             vv, uu = np.meshgrid(np.linspace(0, PI, int(n_points/2)), np.linspace(0, 2 * PI, int(n_points/2)*2))
             xx = np.sin(vv) * np.cos(uu)
@@ -106,19 +106,22 @@ class ACG:
                     u = np.array([xx[i, j], yy[i, j], zz[i, j]])
                     u = u / LA.norm(u)
                     face_den[i,j] = self.d_ACG(u)
-            fig = plt.figure(figsize=(8, 6))
+            if renorm_den is not None:
+                face_den = face_den/(np.max(face_den)*renorm_den)
+            fig = plt.figure(figsize=plt.figaspect(1))
             ax = fig.add_subplot(111, projection='3d')
             surf = ax.plot_surface(xx, yy, zz, facecolors=plt.cm.spring(face_den), rstride=1, cstride=1, antialiased=False)
             ax.set_title("ACG density map")
             ax.set_xlabel('X')
             ax.set_ylabel('Y')
             ax.set_zlabel('Z')
+            ax.view_init(elev=el, azim=az)
             if not hold_show:
                 plt.show()
         else:
             raise Exception("function only implemented for d=3 and d=4")
 
-    def view_orientation_den(self, n_points=100, combine=False, hold_show=False, el=30, az=45):
+    def view_orientation_den(self, n_points=100, combine=True, hold_show=False, el=30, az=45, renorm_den=None):
         n = int(n_points/4)
         vv, uu = np.meshgrid(np.linspace(0, PI, 2*n+1), np.linspace(0, 2*PI, 4*n+1))
         xx_ = np.sin(vv) * np.cos(uu)
@@ -142,7 +145,8 @@ class ACG:
         ax_colour = ['r', 'g', 'b']
         if combine:
             face_den = face_den_e1 + face_den_e2 + face_den_e3
-            #face_den = face_den/(np.max(face_den)/3)
+            if renorm_den is not None:
+                face_den = face_den/(np.max(face_den)*renorm_den)
             ax = fig.add_subplot(111, projection='3d',computed_zorder=False)
             ax.plot_surface(xx, yy, zz, facecolors=plt.cm.spring(face_den), rstride=1, cstride=1, antialiased=False, zorder=5)
             for i in range(3):
@@ -164,12 +168,14 @@ class ACG:
                 plt.show()
         else:
             for i, face_den in enumerate([face_den_e1, face_den_e2, face_den_e3]):
+                if renorm_den is not None:
+                    face_den = face_den / (np.max(face_den) * renorm_den)
                 ax = fig.add_subplot(1, 3, i+1, projection='3d',computed_zorder=False)
                 ax.plot_surface(xx, yy, zz, facecolors=plt.cm.spring(face_den), rstride=1, cstride=1, antialiased=False, zorder=1)
                 mu = R[:,i]
                 ax.plot3D([mu[0], 1.5*mu[0]], [mu[1], 1.5*mu[1]], [mu[2], 1.5*mu[2]], ax_colour[i], zorder=5)
                 ax.set_title(f"ACG density for e_{i+1}")
-                ax.view_init(elev=30, azim=45)
+                ax.view_init(elev=el, azim=az)
                 ax.set_axis_off()
                 ax.grid(False)
             if not hold_show:

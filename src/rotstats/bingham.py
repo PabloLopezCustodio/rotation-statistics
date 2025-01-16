@@ -93,7 +93,6 @@ class Bingham:
         lamb = -self.kappa # in Kent and Mardia, the concentration matrix is multilpied by -1 compared to Glover (used for MLE here)
         lamb = lamb - np.min(lamb)
         A = np.matmul(self.V, np.matmul(np.diag(lamb), self.V.T))
-        print('lamb =',lamb)
 
         def fun_b(b):
             return np.sum(1/(b+2*lamb)) - 1
@@ -101,7 +100,6 @@ class Bingham:
         def dfun_b(b):
             return -np.sum(1/(b+2*lamb)**2)
 
-        #b = fsolve(fun_b, 1)
         sol = optimize.root_scalar(fun_b, x0=1, fprime=dfun_b, method='newton')
         b = sol.root
 
@@ -110,30 +108,29 @@ class Bingham:
 
         M_star = np.exp(-(4-b)/2)*((4/b)**2)
         Omega = np.eye(self.d) + 2*A/b
-        D_acg = acg.ACG(LA.inv(Omega)) # in Kent and Mardia, Omega = inv(Lambda) comapred to Tyler
+        D_acg = acg.ACG(LA.inv(Omega)) # in Kent and Mardia, Omega = inv(Lambda) compared to Tyler
         samples = []
         while True:
             x = D_acg.r_ACG(1)
             w = np.random.uniform(0, 1, 1)[0]
             log_fB_star = -np.matmul(x, np.matmul(A, x.T))[0,0]
             fACG_star = np.matmul(x, np.matmul(Omega,x.T))[0,0]**(-self.d/2)
-            print('left:', np.log(w*M_star*fACG_star), 'right:', log_fB_star)
             if np.log(w*M_star*fACG_star) < log_fB_star:
-                print('accept')
+                #print('accept')
                 samples.append(x[0])
-            else:
-                print('reject')
+            #else:
+                #print('reject')
             if len(samples) == n:
                 break
         data_arr = np.asarray(samples)
         return data_arr
 
-    def view_bingham(self, n_points=100, combine=False, hold_show=False, el=30,az=45):
+    def view_bingham(self, n_points=100, combine=True, hold_show=False, el=30,az=45, renorm_den=None):
         print('preparing visualisation plot....')
         if self.B is None:
             raise Exception("concentration matrix not set")
         if self.d == 4:
-            self.view_orientation_den(n_points, combine, el=el, az=az)
+            self.view_orientation_den(n_points, combine, el=el, az=az, renorm_den=renorm_den)
         elif self.d == 3:
             vv, uu = np.meshgrid(np.linspace(0, PI, int(n_points/2)), np.linspace(0, 2 * PI, int(n_points/2)*2))
             xx = np.sin(vv) * np.cos(uu)
@@ -145,6 +142,8 @@ class Bingham:
                     u = np.array([xx[i, j], yy[i, j], zz[i, j]])
                     u = u / LA.norm(u)
                     face_den[i,j] = self.d_bingham(u)
+            if renorm_den is not None:
+                face_den = face_den/(np.max(face_den)*renorm_den)
             fig = plt.figure(figsize=(8, 6))
             ax = fig.add_subplot(111, projection='3d')
             ax.plot_surface(xx, yy, zz, facecolors=plt.cm.spring(face_den), rstride=1, cstride=1, antialiased=False)
@@ -157,7 +156,7 @@ class Bingham:
         else:
             raise Exception("function only implemented for d=3 and d=4")
 
-    def view_orientation_den(self, n_points=100, combine=False, hold_show=False, el=30,az=45):
+    def view_orientation_den(self, n_points=100, combine=True, hold_show=False, el=30,az=45, renorm_den=None):
         n = int(n_points/4)
         vv, uu = np.meshgrid(np.linspace(0, PI, 2*n+1), np.linspace(0, 2*PI, 4*n+1))
         xx_ = np.sin(vv) * np.cos(uu)
@@ -181,6 +180,8 @@ class Bingham:
         ax_colour = ['r', 'g', 'b']
         if combine:
             face_den = face_den_e1 + face_den_e2 + face_den_e3
+            if renorm_den is not None:
+                face_den = face_den/(np.max(face_den)*renorm_den)
             ax = fig.add_subplot(111, projection='3d', computed_zorder=False)
             ax.plot_surface(xx, yy, zz, facecolors=plt.cm.spring(face_den), rstride=1, cstride=1, antialiased=False,
                             zorder=5)
@@ -204,6 +205,8 @@ class Bingham:
                 plt.show()
         else:
             for i, face_den in enumerate([face_den_e1, face_den_e2, face_den_e3]):
+                if renorm_den is not None:
+                    face_den = face_den / (np.max(face_den) * renorm_den)
                 ax = fig.add_subplot(1, 3, i+1, projection='3d',computed_zorder=False)
                 ax.plot_surface(xx, yy, zz, facecolors=plt.cm.spring(face_den), rstride=1, cstride=1, antialiased=False, zorder=1)
                 ax.plot3D([R[0,i], 1.5 * R[0,i]], [R[1,i], 1.5 * R[1,i]], [R[2,i], 1.5 * R[2,i]], ax_colour[i], zorder=5)
@@ -234,7 +237,7 @@ class Bingham:
         return res[0]/(2*PI)
 
 
-def fit_Bingham(M, scatter_matrix=False, only_param=False):
+def fit_Bingham(M, scatter_matrix=False):
     # is either the data matrix (n,d) or the intertia matrix (d,d)
     if not scatter_matrix:
         n = np.shape(M)[0]
@@ -245,8 +248,6 @@ def fit_Bingham(M, scatter_matrix=False, only_param=False):
     U = U[:, np.argsort(e)]  # ascending order of e
     e = np.sort(e)/np.sum(e)
     kappa = find_in_table("mle", e[:-1])
-    if only_param:
-        return kappa, U
     B = np.matmul(U, np.matmul(np.diag(kappa), U.T))
     return Bingham(B)
 
