@@ -4,6 +4,7 @@ from numpy import linalg as LA
 import scipy
 from scipy.spatial.transform import Rotation
 import matplotlib.pyplot as plt
+from matplotlib import colors
 
 def mat_2_quat(rot_mat):
     # [x, y, z, w] convention
@@ -48,7 +49,7 @@ def quat_mul(p,q):
                      p[0] * q[1] - p[1] * q[0] + p[2] * q[3] + p[3] * q[2],
                      p[3] * q[3] - p[0] * q[0] - p[1] * q[1] - p[2] * q[2]])
 
-def plot_frames(data, hold_show=False,elev=30, azim=45):
+def plot_frames(data, hold_show=False, elev=30, azim=45, title="frames"):
     if np.shape(data[0]) in [(4,), (4,1), (1,4)]:
         Rs = []
         for q in data:
@@ -72,10 +73,33 @@ def plot_frames(data, hold_show=False,elev=30, azim=45):
     arrx, arry, arrz = arrow('z', offset=1.5)
     ax.plot_surface(arrx, arry, arrz, color='k', zorder=10)
     ax.plot3D([0, 0], [0, 0], [0, 1.5], 'k', zorder=5, linewidth=3)
-    ax.set_title("frames")
+    ax.set_title(title)
     ax.view_init(elev=elev, azim=azim)
     ax.set_axis_off()
     ax.grid(False)
+    if not hold_show:
+        plt.show()
+
+def plot_data_S2(data, hold_show=False, elev=30, azim=45, title="data on S^2"):
+    fig = plt.figure(figsize=plt.figaspect(1))
+    ax = fig.add_subplot(111, projection='3d',computed_zorder=False)
+    cmap = colors.LinearSegmentedColormap.from_list("", ["yellow", "white"])
+    # sphere
+    u, v = np.mgrid[0:2 * PI:30j, 0:PI:20j]
+    x = np.cos(u) * np.sin(v)
+    y = np.sin(u) * np.sin(v)
+    z = np.cos(v)
+    ax.scatter(data[:, 0], data[:, 1], data[:, 2], c='blue', marker='o', s=1, zorder=10)
+    ax.plot_surface(x, y, z, cmap=cmap, linewidth=0, antialiased=False, zorder=1)
+    ax.set_box_aspect((np.ptp([1, -1]), np.ptp([1, -1]), np.ptp([1, -1])))
+    ax.axes.set_xlim3d(left=-1.5, right=1.5)
+    ax.axes.set_ylim3d(bottom=-1.5, top=1.5)
+    ax.axes.set_zlim3d(bottom=-1.5, top=1.5)
+    ax.set_xlabel("x")
+    ax.set_ylabel("y")
+    ax.set_zlabel("z")
+    ax.set_title(title)
+    ax.view_init(elev=elev, azim=azim)
     if not hold_show:
         plt.show()
 
@@ -138,3 +162,5 @@ def arrow(axis, offset=1.0):
         return x, y, z
     else:
         raise Exception("axis must be 'x' or 'y' or 'z'")
+
+

@@ -1,8 +1,9 @@
 # This script tests the ACG distribution for S^3 (d=4)
 
 import numpy as np
-from numpy import pi as PI
 import rotstats.bingham as bingham
+from rotstats.utils import plot_frames
+import matplotlib.pyplot as plt
 
 N_SAMPLES = 30
 
@@ -22,11 +23,14 @@ if __name__ == '__main__':
 	print("kappa =", kappa)
 	print(f"\nSimulating {N_SAMPLES} samples from the original distribution:")
 	samples = D_bingham.r_bingham(N_SAMPLES)
+	print(samples)
 	print("\nFitting a Bingham distribution to these samples.")
 	D_bingham_fitted = bingham.fit_Bingham(samples)
 	print("fitted distribution has parameter B:")
 	print(D_bingham_fitted.B)
 	print("original distribution has parameter B:")
 	print(D_bingham.B)
-	print("\nPlotting original distribution")
-	D_bingham.view_bingham()
+	plot_frames(samples, hold_show=True, title="samples from the original distribution")
+	D_bingham.view_bingham(hold_show=True, title="original distribution")
+	D_bingham_fitted.view_bingham(hold_show=True, title="fitted distribution")
+	plt.show()

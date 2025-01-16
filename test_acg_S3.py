@@ -1,9 +1,11 @@
 # This script tests the ACG distribution for S^3 (d=4)
 
 import numpy as np
+import matplotlib.pyplot as plt
 import rotstats.acg as acg
+from rotstats.utils import plot_frames
 
-N_SAMPLES = 20
+N_SAMPLES = 30
 
 ######################################################################################################################
 if __name__ == '__main__':
@@ -29,5 +31,7 @@ if __name__ == '__main__':
 	print(D_acg_fitted.Lambda)
 	print("Lambda from the original distribution:")
 	print(Lambda)
-	print("\nPlotting original distribution")
-	D_acg.view_ACG()
+	plot_frames(samples, hold_show=True, title="samples from original distribution")
+	D_acg.view_ACG(hold_show=True, title="original distribution")
+	D_acg_fitted.view_ACG(hold_show=True, title="fitted distribution")
+	plt.show()

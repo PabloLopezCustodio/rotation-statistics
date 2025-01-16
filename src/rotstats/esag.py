@@ -2,6 +2,7 @@ import numpy as np
 from numpy import linalg as LA
 from numpy import pi as PI
 from scipy.stats import norm as normal
+from scipy.stats import multivariate_normal as mvn
 from scipy.optimize import fmin
 from rotstats.utils import *
 
@@ -31,7 +32,7 @@ class ESAG:
             else:
                 self.det = LA.det
 
-    def comp_invK(self):
+    def comp_invV(self):
         if self.d != 3:
             raise Exception("function only available for d=3")
         mu = self.mu
@@ -67,7 +68,7 @@ class ESAG:
         # density at X
         # X: (n, d)
         # output: (n,)
-        self.comp_invK()
+        self.comp_invV()
         n = len(X)
         X = np.transpose(X) # (d,n)
         C1 = np.diag(np.matmul(X.T, np.matmul(self.invV, X))) # (n,)
@@ -91,15 +92,24 @@ class ESAG:
             loglik = loglik + np.log(f_x[i])
         return loglik
 
+    def r_ESAG(self, n):
+        if self.invV is None:
+            self.comp_invV()
+        samples = mvn.rvs(mean=np.zeros(self.d), cov=LA.inv(self.invV), size=n)
+        for i in range(n):
+            samples[i] = samples[i]/LA.norm(samples[i])
+        return samples
+
+
 def fit_ESAG(X):
     # X: (n,3)
     def f(a):
         mu = a[:3]
         gamma = a[3:]
-        esag_pdf = ESAG(mu, gamma)
-        return -esag_pdf.loglik_ESAG(X)
+        D_esag = ESAG(mu, gamma)
+        return -D_esag.loglik_ESAG(X)
     a0 = [1, 1, 1, 1, 1]
-    ahat = fmin(f,a0,disp=1)
+    ahat = fmin(f,a0, disp=1)
     muhat = ahat[:3]
     gammahat = ahat[3:]
     return ESAG(muhat, gammahat)

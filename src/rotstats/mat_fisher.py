@@ -95,7 +95,7 @@ class M_Fisher:
         self.c = self.c_MFisher()
 
     def c_MFisher(self):
-        # normalising constant of the Bingham distribution
+        # normalising constant of the Matrix Fisher distribution
         if self.F is None:
             raise Exception("concentration matrix not set")
         return normalising_c(self.s)
@@ -121,13 +121,13 @@ class M_Fisher:
             Rs.append(np.matmul(self.U, np.matmul(quat_2_mat(Qs[i,:]),self.V.T)))
         return Rs
 
-    def view_MFisher(self, n_points=100, combine=False, hold_show=False, el=30,az=45):
-        print('preparing visualisation plot....')
+    def view_MFisher(self, n_points=100, combine=True, hold_show=False, el=30, az=45, renorm_den=None, title="Matrix Fisher density map"):
+        print('preparing visualisation plot for', title, '....')
         if self.F is None:
             raise Exception("concentration matrix not set")
-        self.view_orientation_den(n_points, combine, hold_show, el=el,az=az)
+        self.view_orientation_den(n_points, combine, hold_show, el=el,az=az,renorm_den=renorm_den, title=title)
 
-    def view_orientation_den(self, n_points=100, combine=False, hold_show=False, el=30,az=45):
+    def view_orientation_den(self, n_points, combine, hold_show, el,az, renorm_den, title):
         n = int(n_points/4)
         vv, uu = np.meshgrid(np.linspace(0, PI, 2*n+1), np.linspace(0, 2*PI, 4*n+1))
         xx_ = np.sin(vv) * np.cos(uu)
@@ -151,7 +151,8 @@ class M_Fisher:
         ax_colour = ['r', 'g', 'b']
         if combine:
             face_den = face_den_e1 + face_den_e2 + face_den_e3
-            face_den = face_den / (np.max(face_den))
+            if renorm_den is not None:
+                face_den = face_den / (np.max(face_den) * renorm_den)
             ax = fig.add_subplot(111, projection='3d', computed_zorder=False)
             ax.plot_surface(xx, yy, zz, facecolors=plt.cm.spring(face_den), rstride=1, cstride=1, antialiased=False,
                             zorder=5)
@@ -167,7 +168,7 @@ class M_Fisher:
             arrx, arry, arrz = arrow('z', offset=1.5)
             ax.plot_surface(arrx, arry, arrz, color='k', zorder=1)
             ax.plot3D([0, 0], [0, 0], [1, 1.5], 'k', zorder=1, linewidth=3)
-            ax.set_title("Matrix Fisher density map")
+            ax.set_title(title)
             ax.view_init(elev=el, azim=az)
             ax.set_axis_off()
             ax.grid(False)
@@ -175,11 +176,13 @@ class M_Fisher:
                 plt.show()
         else:
             for i, face_den in enumerate([face_den_e1, face_den_e2, face_den_e3]):
+                if renorm_den is not None:
+                    face_den = face_den / (np.max(face_den) * renorm_den)
                 ax = fig.add_subplot(1, 3, i+1, projection='3d',computed_zorder=False)
                 ax.plot_surface(xx, yy, zz, facecolors=plt.cm.spring(face_den), rstride=1, cstride=1, antialiased=False, zorder=1)
                 mu = R[:,i]
                 ax.plot3D([mu[0], 1.5*mu[0]], [mu[1], 1.5*mu[1]], [mu[2], 1.5*mu[2]], ax_colour[i], zorder=5)
-                ax.set_title(f"Matrix-Fisher density for e_{i+1}")
+                ax.set_title(title + f": e_{i+1}")
                 ax.view_init(elev=30, azim=45)
                 ax.set_axis_off()
                 ax.grid(False)
@@ -205,7 +208,7 @@ class M_Fisher:
         res = integrate.quad(integrand_ei, 0, 2*PI)
         return res[0]/(2*PI)
 
-def fit_MFisher(Rs, only_param=False, return_error=False):
+def fit_MFisher(Rs, return_error=False):
     # Rs: a list of (3,3)-np.arrays
     R_bar = emp_mean(Rs)
     U, d, Vt = np.linalg.svd(R_bar)
@@ -219,8 +222,6 @@ def fit_MFisher(Rs, only_param=False, return_error=False):
         return [dc_i(s)/c - d[0], dc_j(s)/c - d[1], dc_k(s)/c - d[2]]
 
     s_hat = fsolve(H, d)
-    if only_param and return_error:
-        return U, s_hat, Vt.T, LA.norm(H(s_hat))
     if return_error:
         return M_Fisher(U=U, V=Vt.T, s=s_hat), LA.norm(H(s_hat))
     return M_Fisher(U=U, V=Vt.T, s=s_hat)

@@ -3,7 +3,8 @@
 import numpy as np
 from numpy import pi as PI
 import rotstats.acg as acg
-from rotstats.utils import exp_SO3
+from rotstats.utils import exp_SO3, plot_data_S2
+import matplotlib.pyplot as plt
 
 N_SAMPLES = 30
 
@@ -29,5 +30,7 @@ if __name__ == '__main__':
 	print(D_acg_fitted.Lambda)
 	print("Lambda from the original distribution:")
 	print(Lambda)
-	print("\nPlotting original distribution")
-	D_acg.view_ACG(n_points=200)
+	plot_data_S2(samples, hold_show=True, title="samples from original distribution")
+	D_acg.view_ACG(n_points=200, hold_show=True, title="original distribution")
+	D_acg_fitted.view_ACG(n_points=200, hold_show=True, title="fitted distribution")
+	plt.show()
