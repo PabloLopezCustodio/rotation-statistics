@@ -45,17 +45,24 @@ class TS_Gaussian:
         else:
             self.det = LA.det
 
-    def d_TSG(self, x):
+    def d_TSG(self, X):
         if self.D_mvn is None or self.Tb is None:
             raise Exception('Parameters are not defined')
-        if np.size(x) != self.d:
+        if np.ndim(X) == 1:
+            X = [X]
+        if X.shape[1] != self.d:
             raise Exception(f'x must be a {self.d}-dimensional vector')
-        z = np.matmul(log_S(self.b, x if np.dot(self.b,x) > 0 else -x), self.Tb)
-        return self.D_mvn.pdf(z)
+        Z = np.zeros_like(X)
+        for i, x in enumerate(X):
+            Z[i] = log_S(self.b, x if np.dot(self.b,x) > 0 else -x)
+        return self.D_mvn.pdf(np.matmul(Z, self.Tb))
 
     def d_TSG_unprot(self, x):
         z = np.matmul(log_S(self.b, x if np.dot(self.b,x) > 0 else -x), self.Tb)
         return self.D_mvn.pdf(z)
+
+    def r_TSG(self, n):
+        return np.matmul(self.D_mvn.rvs(n), self.Tb.T)
 
     def view_TSG(self, n_points=100, combine=False, hold_show=False, el=30,az=45):
         print('preparing visualisation plot...')

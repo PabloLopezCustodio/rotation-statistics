@@ -25,6 +25,9 @@ def gram(data):
         G = G + np.matmul(v, v.T)
     return G
 
+def det_2_by_2(M):
+    return M[0,0]*M[1,1] - M[1,0]*M[0,1]
+
 def det_3_by_3(M):
     return M[0,0]*(M[1,1]*M[2,2]-M[1,2]*M[2,1]) - M[0,1]*(M[1,0]*M[2,2]-M[2,0]*M[1,2]) + M[0,2]*(M[1,0]*M[2,1]-M[2,0]*M[1,1])
 
