@@ -1,6 +1,4 @@
 import numpy as np
-from numpy import pi as PI
-from numpy import linalg as LA
 import json
 import os
 
@@ -46,12 +44,8 @@ if __name__ == '__main__':
 	# print(D_acg_cad.Lambda)
 	# print("EHC Lambda:")
 	# print(D_acg_ehc.Lambda)
-	# a,_ = LA.eigh(D_acg_cad.Lambda)
-	# a = np.flip(np.sort(a)) # descending order
-	# print("CAD eigenvalues:", a/np.max(a))
-	# a, _ = LA.eigh(D_acg_ehc.Lambda)
-	# a = np.flip(np.sort(a))  # descending order
-	# print("EHC eigenvalues:", a/np.max(a))
+	# print("CAD eigenvalues:", D_acg_cad.a)
+	# print("EHC eigenvalues:", D_acg_ehc.a)
 	# D_acg_cad.view_ACG(n_points=n_points_plot, combine=True, el=elevation, az=azimuth, hold_show=False)
 	# D_acg_ehc.view_ACG(n_points=n_points_plot, combine=True, el=elevation, az=azimuth, hold_show=False)
 
@@ -98,10 +92,10 @@ if __name__ == '__main__':
 	# print("\nGaussian in the tangent space:\n")
 	# print("CAD base point:", D_tsg_cad.b)
 	# print("CAD covariance:\n", D_tsg_cad.Sigma)
-	# print("CAD basis:\n", D_tsg_cad.Tb)
+	# print("CAD R^3 basis:\n", D_tsg_cad.Tb)
 	# print("EHC base point:", D_tsg_ehc.b)
 	# print("EHC covariance:\n", D_tsg_ehc.Sigma)
-	# print("EHC basis:\n", D_tsg_ehc.Tb)
+	# print("EHC R^3 basis:\n", D_tsg_ehc.Tb)
 	# D_tsg_cad.view_TSG(n_points=n_points_plot, combine=True, hold_show=True, el=elevation, az=azimuth)
 	#
 	plot_frames(QOAs_cad, hold_show=False, elev=elevation, azim=azimuth)

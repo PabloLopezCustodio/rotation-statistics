@@ -252,8 +252,7 @@ class Bingham:
 def fit_Bingham(M, scatter_matrix=False):
     # is either the data matrix (n,d) or the intertia matrix (d,d)
     if not scatter_matrix:
-        n = np.shape(M)[0]
-        S = gram(M)/n
+        S = np.matmul(M.T, M) / np.shape(M)[0]
     else:
         S = M
     e, U = LA.eigh(S)
