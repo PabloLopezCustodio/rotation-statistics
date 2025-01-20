@@ -151,6 +151,10 @@ class Bingham:
             ax.set_xlabel('X')
             ax.set_ylabel('Y')
             ax.set_zlabel('Z')
+            ax.set_box_aspect((np.ptp([1, -1]), np.ptp([1, -1]), np.ptp([1, -1])))
+            ax.axes.set_xlim3d(left=-1.5, right=1.5)
+            ax.axes.set_ylim3d(bottom=-1.5, top=1.5)
+            ax.axes.set_zlim3d(bottom=-1.5, top=1.5)
             if not hold_show:
                 plt.show()
         else:
@@ -200,6 +204,10 @@ class Bingham:
             ax.set_title(title)
             ax.view_init(elev=el, azim=az)
             ax.set_axis_off()
+            ax.set_box_aspect((np.ptp([1, -1]), np.ptp([1, -1]), np.ptp([1, -1])))
+            ax.axes.set_xlim3d(left=-1.5, right=1.5)
+            ax.axes.set_ylim3d(bottom=-1.5, top=1.5)
+            ax.axes.set_zlim3d(bottom=-1.5, top=1.5)
             ax.grid(False)
             if not hold_show:
                 plt.show()
@@ -213,6 +221,10 @@ class Bingham:
                 ax.set_title(title + f": e_{i+1}")
                 ax.view_init(elev=30, azim=45)
                 ax.set_axis_off()
+                ax.set_box_aspect((np.ptp([1, -1]), np.ptp([1, -1]), np.ptp([1, -1])))
+                ax.axes.set_xlim3d(left=-1.5, right=1.5)
+                ax.axes.set_ylim3d(bottom=-1.5, top=1.5)
+                ax.axes.set_zlim3d(bottom=-1.5, top=1.5)
                 ax.grid(False)
             if not hold_show:
                 plt.show()

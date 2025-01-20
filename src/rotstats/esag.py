@@ -124,6 +124,7 @@ class ESAG:
         return samples
 
     def view_ESAG(self, n_points=100, combine=True, hold_show=False, el=30, az=45, renorm_den=None, title="ESAG density map"):
+        print('preparing visualisation plot for', title, '....')
         if self.d != 3:
             raise Exception("function only available for d=3")
         vv, uu = np.meshgrid(np.linspace(0, PI, int(n_points / 2)), np.linspace(0, 2 * PI, int(n_points / 2) * 2))
