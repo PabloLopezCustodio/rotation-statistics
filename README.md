@@ -72,4 +72,9 @@ The following scripts analyse the data from the experiments presented in Section
 - `experiment_mustard.py`: experiment in Section 7.1.
 - `experiment_aruco.py`: experiment in Section 7.2.
 
+## To Do
+
+- Make sure the Bingham implementation works for $S^2$.
+- Either improve interpolation in the lookup table to compute the normalising constant and MLE, or change implementation to use the Cython integrands from the Matrix-Fisher distribution.
+
 
