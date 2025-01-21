@@ -33,7 +33,7 @@ Each model has a class. To define a distribution an object of the corresponding 
 - `M_Fisher(F=F)` or `M_Fisher(U=U,V=V,s=s)`: `F` is the concentration matrix ($R^{3\times 3}$) while `U`, `V`, `s` correspond to its SVD, i.e. $F=USV^T$, with `s` containing the diagonal elements of $S$.
 - `Bingham(B)`: `B` is the concentration matrix, an SPD($d$) matrix.
 - `ESAG(mu=mu, gamma=gamma)` or `ESAG(mu=mu, rho=rho, psi=psi)`: `mu` is the parameter $\mu\in R^3$. `gamma` is the parameter vector $(\gamma_1, \gamma_2)\in R^2$. `rho` and `psi` provide the geometric parametrisation with $\rho$ being the concentration parameter and $\psi$ the rotation of principal axes.
-- `TS_Gaussian(Sigma, b, Tb)`: `b` is the base point, i.e. the mean $b\inS^{d-1}$; `Tb` is a $R^{d\times(d-1)}$ matrix whose columns are a basis for the tangent space at $b$, $R^{d-1}$, this basis coincides with the principal axes of the Gaussian, hence the covariance matrix `Sigma` is diagonal.
+- `TS_Gaussian(Sigma, b, Tb)`: `b` is the base point, i.e. the mean $b\in S^{d-1}$; `Tb` is a $R^{d\times(d-1)}$ matrix whose columns are a basis for the tangent space at $b$, $R^{d-1}$, this basis coincides with the principal axes of the Gaussian, hence the covariance matrix `Sigma` is diagonal.
 
 The available functions are presented for the case of the ACG distribution. For the other models, replace `ACG` for:
 - `MFisher` for Matrix Fisher.
