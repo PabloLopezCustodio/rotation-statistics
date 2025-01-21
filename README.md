@@ -2,7 +2,7 @@
 
 This package includes several models for probability distributions of orientational data. Orientational data here refers to any type of data that defines the orientation of a rigid body with respect to an inertial coordinate system. These orientations can be achieved by 1-DOF rotations (rotations about a fixed axis, data is in $S^1$), 2-DOF rotations (elevation and azimuth, data is in $S^2$), or full 3-DOF rotations (data is in $S^3$ or SO(3), i.e. quaternions or rotation matrices).
 
-This package offers functions for models for data in S^2, S^3 (with and without antipodal symmetry) and SO(3). Hance the data can be unit vectors, quaternions or rotation matrices.
+This package offers functions for models for data in $S^2$, $S^3$ (with and without antipodal symmetry) and SO(3). Hance the data can be unit vectors, quaternions or rotation matrices.
 
 For each model, functions for density, simulation (sampling), and fitting to data are included. In addition, functions for visualisation of distributions in both $S^2$ and SO(3).
 
@@ -14,7 +14,7 @@ Currently, the following models are included:
 - **Elliptically Symmetric Angular Gaussian distribution (ESAG)**. Currently only $S^2$ is supported, i.e. for unit vectors in $R^3$. 
 - **Gaussian in the tangent space of** $S^{d-1}$. Simple Gaussian defined in the tangent space. Works for any $S^{d-1}$ with or without antipodal symmetry.
 
-For detailed theoretical information, see the paper [A cheatsheet for probability distributions of orientational data](https://www.overleaf.com/project/673212f12cd64ed465358a55) which this package accompanies.
+For detailed theoretical information, see the paper [A cheatsheet for probability distributions of orientational data](https://arxiv.org/abs/2412.08934) which this package accompanies.
 
 ## Installation
 
