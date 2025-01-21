@@ -1,3 +1,4 @@
+global-exclude *.html *.pyd *.so *.c *.cpp
 recursive-include src/rotstats/data *.json
 include src/rotstats/*.pyx
 include src/rotstats/*.pxd
