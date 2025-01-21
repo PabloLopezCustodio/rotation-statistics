@@ -4,11 +4,11 @@ This package includes several models for probability distributions of orientatio
 
 This package offers functions for models for data in $S^2$, $S^3$ (with and without antipodal symmetry) and SO(3). Hance the data can be unit vectors, quaternions or rotation matrices.
 
-For each model, functions for density, simulation (sampling), and fitting to data are included. In addition, functions for visualisation of distributions in both $S^2$ and SO(3).
+For each model, functions for density, simulation (sampling), and fitting to data are included. In addition, functions for visualisation of distributions in both $S^2$ and SO(3) are offered.
 
 Currently, the following models are included:
 
-- **Angular Central Gaussian distribution (ACG)**. Supports $S^{d-1}$ with antipodal symmetry. Ideal for quaternions (d=3)!
+- **Angular Central Gaussian distribution (ACG)**. Supports $S^{d-1}$ with antipodal symmetry. Ideal for quaternions (d=3).
 - **Matrix Fisher distribution**. Supports SO(3). Ideal for rotation matrices.
 - **Bingham distribution**. Currently only $S^3$ with antipodal symmetry is supported, i.e. for quaternions.
 - **Elliptically Symmetric Angular Gaussian distribution (ESAG)**. Currently only $S^2$ is supported, i.e. for unit vectors in $R^3$. 
@@ -33,9 +33,9 @@ Each model has a class. To define a distribution an object of the corresponding 
 - `M_Fisher(F=F)` or `M_Fisher(U=U,V=V,s=s)`: `F` is the concentration matrix ($R^{3\times 3}$) while `U`, `V`, `s` correspond to its SVD, i.e. $F=USV^T$, with `s` containing the diagonal elements of $S$.
 - `Bingham(B)`: `B` is the concentration matrix, an SPD($d$) matrix.
 - `ESAG(mu=mu, gamma=gamma)` or `ESAG(mu=mu, rho=rho, psi=psi)`: `mu` is the parameter $\mu\in R^3$. `gamma` is the parameter vector $(\gamma_1, \gamma_2)\in R^2$. `rho` and `psi` provide the geometric parametrisation with $\rho$ being the concentration parameter and $\psi$ the rotation of principal axes.
-- `TS_Gaussian(Sigma, b, Tb)`: `b` is the base point, i.e. the mean $b\in S^{d-1}$; `Tb` is a $R^{d\times(d-1)}$ matrix whose columns are a basis for the tangent space at $b$, $R^{d-1}$, this basis coincides with the principal axes of the Gaussian, hence the covariance matrix `Sigma` is diagonal.
+- `TS_Gaussian(Sigma, b, Tb)`: `b` is the base point, i.e. the mean $b\in S^{d-1}$; `Tb` is a $R^{d\times(d-1)}$ matrix whose columns are the principal axes of the Gaussian. Hence $[b T_b]$ is in SO($d$) and the covariance matrix `Sigma` is diagonal.
 
-The available functions are presented for the case of the ACG distribution. For the other models, replace `ACG` for:
+The available functions are presented here for the case of the ACG distribution. For the other models, replace `ACG` for:
 - `MFisher` for Matrix Fisher.
 - `ESAG` for ESAG.
 - `bingham` for Bingham.
@@ -46,11 +46,11 @@ Member functions of the `ACG` class:
 - `d_ACG(x)`: density at `x`, which is in $S^{d-1}$.
 - `view_ACG(n_points=100, combine=True, hold_show=False, el=30, az=45, renorm_den=None, title="ACG density map")`: generates a visualisation of the ditribution. If $d=3$, this is a density map on the sphere $S^2$, if $d=4$ the map shows the density of frames, see Section 2.4 of the [accompanying paper](https://arxiv.org/abs/2412.08934). Parameters:
     * `n_points`: number of points to build the mesh. The total number of points in the mesh is `2*int(n_points/2)**2`.
-    * `combine`: in the case of quaternions and rotation matrices, combine the density maps of the three axes of the frame (see [Sec. 1.4](https://arxiv.org/abs/2412.08934))
+    * `combine`: in the case of quaternions and rotation matrices, combine the density maps of the three axes of the frame in one single plot (see [Sec. 1.4](https://arxiv.org/abs/2412.08934)).
     * `hold_show`: if `True`, the command `plt.show()` is not executed, allowing to display other plots at the same time (Useful to compare different models, distributions or data).
     * `el` and `az`: elevation and azimuth of the view.
     * `renorm_den`: renormalise the density by this factor of the maximum density, e.g. to make the colormap take values in (0,1] `renorm_den=1.0`. 
-    * `title`: Plot title.
+    * `title`: Plot title. 
 
 Non-member functions:
 - `fit_ACG(axial_data)`: fits an ACG distribution to the data in `axial_data`, which has shape `(n, d)` where `n` is the number of points in the dataset and `d` is the dimension of the ambient space.

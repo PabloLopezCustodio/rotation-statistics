@@ -12,3 +12,6 @@
 __pycache__/
 *.pyc
 *.pyo
+
+# Pycharm's idea
+.idea/
