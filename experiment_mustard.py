@@ -1,3 +1,7 @@
+# Operations related to the experiment in Section 7.1 of:
+# Lopez-Custodio PC, 2025, "A cheatsheet for probability distributions of orientational data", preprint: https://arxiv.org/abs/2412.08934
+# author: Pablo Lopez-Custodio, pablo.lopez-custodio@ntu.ac.uk
+
 import json
 import os
 import numpy as np

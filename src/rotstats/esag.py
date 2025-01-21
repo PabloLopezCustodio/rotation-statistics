@@ -1,3 +1,9 @@
+# Class and functions for the ESAG distribution
+# For details, see the paper:
+# Lopez-Custodio PC, 2025, "A cheatsheet for probability distributions of orientational data", preprint: https://arxiv.org/abs/2412.08934
+# author: Pablo Lopez-Custodio, pablo.lopez-custodio@ntu.ac.uk
+# Some of the functions of this script are based on the Matlab library: https://www.maths.nottingham.ac.uk/plp/pmzspp/files.php
+
 import numpy as np
 from numpy import linalg as LA
 from numpy import pi as PI
@@ -7,8 +13,14 @@ from scipy.optimize import fmin
 from rotstats.utils import *
 
 class ESAG:
-    # mu: mean, (d,) or (d,1)
-    # gamma: geometry parameters in R^(d-1), (d-1,) or (d-1,1)
+    # only functional for d=3. Initialise with parametrisation mu and gamma, or parametrisation mu, rho and psi.
+    # mu: mu parameter, array (d,)
+    # gamma: geometry parameters (gamma_1, gamma_2), array (d,)
+    # rho: concentration parameter, scalar
+    # psi: rotation of principal axes, scalar
+    # xis: matrix with columns being the vectors xi_1 and xi_2
+    # invV: inverse of matrix V, array (d,d)
+    # det: determinant function to avoid numpy
     def __init__(self, mu=None, gamma=None, rho=None, psi=None, fast_definition=False):
         self.mu = None
         self.gamma = None
@@ -53,6 +65,7 @@ class ESAG:
 
 
     def comp_invV(self):
+        # computes the inverse of V
         if self.d != 3:
             raise Exception("function only available for d=3")
         mu = self.mu
@@ -85,12 +98,14 @@ class ESAG:
 
     def d_ESAG(self, X):
         # density at X
-        # X: (n, d)
-        # output: (n,)
+        # INPUT:
+        # X: n points in S^{d-1}, (d,) or (n, d)
+        # OUTPUT:
+        # (n,) or scalar
         if self.invV is None:
             self.comp_invV()
         if np.size(X) == self.d:
-            X = np.array([X])
+            X = np.reshape(X,(1, self.d))
         n = len(X)
         X = np.transpose(X) # (d,n)
         C1 = np.diag(np.matmul(X.T, np.matmul(self.invV, X))) # (n,)
@@ -104,6 +119,8 @@ class ESAG:
             alpha = C2[i]/np.sqrt(C1[i])
             M2 = (1+alpha**2)*normal.cdf(alpha) + alpha*normal.pdf(alpha)
             f_x[i] = 1/(2*PI)*C1[i]**(-3/2)*np.exp(1/2*(alpha**2 - C3))*M2
+        if np.size(f_x) == 1:
+            return f_x[0]
         return f_x
 
     def loglik_ESAG(self, X):
@@ -116,6 +133,11 @@ class ESAG:
         return loglik
 
     def r_ESAG(self, n):
+        # draws samples from the ESAG distribution
+        # INPUT:
+        # n: number of samples
+        # OUTPUT:
+        # samples in S^{d-1}, (n,d)
         if self.invV is None:
             self.comp_invV()
         samples = mvn.rvs(mean=self.mu, cov=LA.inv(self.invV), size=n)
@@ -123,7 +145,14 @@ class ESAG:
             samples[i] = samples[i]/LA.norm(samples[i])
         return samples
 
-    def view_ESAG(self, n_points=100, combine=True, hold_show=False, el=30, az=45, renorm_den=None, title="ESAG density map"):
+    def view_ESAG(self, n_points=100, hold_show=False, el=30, az=45, renorm_den=None, title="ESAG density map"):
+        # plots a visualisation of the ESAG distribution for d=3.
+        # INPUT:
+        # n_points: number of points to create grid
+        # hold_show: do not run 'plt.show()'
+        # el, az: elevation and azimuth of view
+        # renorm_den: renormalise density by this factor of the maximum density
+        # title: plot title
         print('preparing visualisation plot for', title, '....')
         if self.d != 3:
             raise Exception("function only available for d=3")
@@ -156,7 +185,11 @@ class ESAG:
 
 
 def fit_ESAG(X):
-    # X: (n,3)
+    # fits an ESAG distribution to data
+    # INPUT:
+    # X: data array (n, d)
+    # OUTPUT:
+    # ESAG object with estimated parameter
     def f(a):
         mu = a[:3]
         gamma = a[3:]
@@ -168,14 +201,3 @@ def fit_ESAG(X):
     gammahat = ahat[3:]
     return ESAG(mu=muhat, gamma=gammahat)
 
-def create_ellipse(R, alpha, a_2, a_3, num_points):
-    times = np.linspace(0.0, 2*np.pi, num=num_points)
-    r = np.stack((np.sqrt(a_2)*np.cos(times)/alpha,
-                  np.sqrt(a_3)*np.sin(times)/alpha,
-                  np.zeros(num_points)))
-    v = np.matmul(R, r)  # (3, num_points)
-    k = np.transpose([R[:,2]])
-    p = np.tile(k, num_points) # (3, num_points)
-    theta = LA.norm(v, axis=0)
-    exp_v = np.tile(np.cos(theta), (3,1))*p + np.tile(np.sin(theta)/theta, (3,1))*v
-    return exp_v # (3, num_points)

@@ -1,3 +1,10 @@
+# Class and functions for the Bingham distribution
+# For details, see the paper:
+# Lopez-Custodio PC, 2025, "A cheatsheet for probability distributions of orientational data", preprint: https://arxiv.org/abs/2412.08934
+# author: Pablo Lopez-Custodio, pablo.lopez-custodio@ntu.ac.uk
+# The table to compute the normalising constant and MLE was generated from the tables in the C and Matlab library:
+# https://github.com/SebastianRiedel/bingham.git
+
 import numpy as np
 from numpy import linalg as LA
 from numpy import pi as PI
@@ -69,17 +76,24 @@ class Bingham:
     def set_c(self):
         self.c = self.c_bingham()
 
-    def d_bingham(self, x):
+    def d_bingham(self, X):
+        # density at X
+        # INPUT:
+        # X: points in S^{d-1}, array (d,), (n,d)
+        # OUTPUT:
+        # (n,) or scalar
         if self.B is None:
             raise Exception("concentration matrix not set")
         if self.c is None:
             self.set_c()
-        if np.size(x) != self.d:
-            raise Exception(f"x must be {self.d}-dimensional")
-        x = np.reshape(np.asarray(x), (self.d,1))
-        x = x/LA.norm(x)
-        tmp = np.matmul(x.T, np.matmul(self.B, x))
-        return np.exp(tmp[0,0])/self.c
+        if np.size(X) == self.d:
+            x = np.reshape(X,(self.d,))
+            den = np.exp(np.matmul(x.T, np.matmul(self.B, x))) / self.c
+        else:
+            den = np.zeros(len(X))
+            for i, x in enumerate(X):
+                den[i] = np.exp(np.matmul(x.T, np.matmul(self.B, x))) / self.c
+        return den
 
     def d_bingham_unprot(self, x):
         # x has shape (d,)
@@ -87,7 +101,10 @@ class Bingham:
 
     def r_bingham(self, n):
         # draws n random samples from the Bingham distribution
-        # output: (n,d)
+        # INPUT:
+        # n: number of samples
+        # OUTPUT:
+        # samples in S^{d-1}, (n,d)
         if self.B is None:
             raise Exception("concentration matrix not set")
         lamb = -self.kappa # in Kent and Mardia, the concentration matrix is multilpied by -1 compared to Glover (used for MLE here)
@@ -126,6 +143,13 @@ class Bingham:
         return data_arr
 
     def view_bingham(self, n_points=100, combine=True, hold_show=False, el=30,az=45, renorm_den=None, title="Bingham density map"):
+        # plots a visualisation of the Bingham distribution for d=3 or d=4
+        # INPUT:
+        # n_points: number of points to create grid
+        # combine: for d=4, combine the density map of the three axes in one single plot
+        # hold_show: do not run 'plt.show()'
+        # el, az: elevation and azimuth of view
+        # renorm_den: renormalise density by this factor of the maximum density
         print('preparing visualisation plot for', title, '....')
         if self.B is None:
             raise Exception("concentration matrix not set")
@@ -250,7 +274,12 @@ class Bingham:
 
 
 def fit_Bingham(M, scatter_matrix=False):
-    # is either the data matrix (n,d) or the intertia matrix (d,d)
+    # fits a Bingham distribution to data
+    # INPUT:
+    # M: data array (n, d), or scatter matrix (d,d)
+    # scatter_matrix: True: M is a scatter matrix, False: M is a data array
+    # OUTPUT:
+    # Bingham object with estimated parameter
     if not scatter_matrix:
         S = np.matmul(M.T, M) / np.shape(M)[0]
     else:

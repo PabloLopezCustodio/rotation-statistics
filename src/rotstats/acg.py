@@ -1,3 +1,8 @@
+# Class and functions for the Angular Central Distribution (ACG)
+# For details, see the paper:
+# Lopez-Custodio PC, 2025, "A cheatsheet for probability distributions of orientational data", preprint: https://arxiv.org/abs/2412.08934
+# author: Pablo Lopez-Custodio, pablo.lopez-custodio@ntu.ac.uk
+
 import numpy as np
 from numpy import linalg as LA
 from numpy import pi as PI
@@ -13,11 +18,11 @@ import warnings
 warnings.simplefilter("ignore", IntegrationWarning)
 
 class ACG:
-    # Lambda = concentration matrix
+    # Lambda = concentration matrix, (d,d) SPD matrix
     # d = ambient space dimension, q in Tyler's paper. However, note that he calls S^(d-1) "S^q"
     # Q = eigenvectors matrix, descending order
     # a = eigenvalues, descending order
-    # n = normalising constant
+    # c = normalising constant
     # det = determinant function (avoid numpy for d=3,4)
     def __init__(self, Lambda=None):
         self.d = None
@@ -52,7 +57,10 @@ class ACG:
 
     def r_ACG(self, n):
         # draws n random samples from the ACG distribution
-        # output: (n,d)
+        # INPUT:
+        # n: number of samples
+        # OUTPUT:
+        # samples in S^{d-1}, (n,d)
         if self.Lambda is None:
             raise Exception("concentration matrix not set")
         N_samples = np.random.multivariate_normal(np.zeros(self.d), self.Lambda, size=n)
@@ -75,21 +83,37 @@ class ACG:
         log_w_p = np.log(2) + 0.5*self.d*np.log(PI) - math.lgamma(0.5*self.d)
         return - (log_w_p + 0.5*log_det)
 
-    def d_ACG(self, x):
-        # density at x
-        # x: (d,), (d,1), (1,d)
+    def d_ACG(self, X):
+        # density at X
+        # INPUT:
+        # X: points in S^{d-1}, array (d,), (n,d)
+        # OUTPUT:
+        # (n,) or scalar
         if self.Lambda is None:
             raise Exception("concentration matrix not set")
-        x = np.reshape(x, (self.d,1))
         if self.log_c is None:
             self.log_c = self.log_c_ACG()
-        log_dens = self.log_c - 0.5 * self.d * np.log(np.matmul(x.T, LA.solve(self.Lambda, x)))
+        if np.size(X) == self.d:
+            x = np.reshape(X,(self.d,))
+            log_dens = self.log_c - 0.5 * self.d * np.log(np.matmul(x.T, LA.solve(self.Lambda, x)))
+        else:
+            log_dens = np.zeros(len(X))
+            for i, x in enumerate(X):
+                log_dens[i] = self.log_c - 0.5 * self.d * np.log(np.matmul(x.T, LA.solve(self.Lambda, x)))
         return np.exp(log_dens)
 
     def d_ACG_unprot(self, x):
         return np.exp(self.log_c - 0.5 * self.d * np.log(np.matmul(x.T, LA.solve(self.Lambda, x))))
 
     def view_ACG(self, n_points=100, combine=True, hold_show=False, el=30, az=45, renorm_den=None, title="ACG density map"):
+        # plots a visualisation of the ACG distribution for d=3 and d=4
+        # INPUT:
+        # n_points: number of points to create grid
+        # combine: for d=4, combine the density map of the three axes in one single plot
+        # hold_show: do not run 'plt.show()'
+        # el, az: elevation and azimuth of view
+        # renorm_den: renormalise density by this factor of the maximum density
+        # title: plot title
         print('preparing visualisation plot for', title, '....')
         if self.Lambda is None:
             raise Exception("concentration matrix not set")
@@ -215,7 +239,10 @@ class ACG:
 
 def fit_ACG(axial_data):
     # Tyler's iterative algorithm for maximum-likelihood estimation of the ACG parameters
-    # axial_data: (number of samples, dimension of ambient space)
+    # INPUT:
+    # axial_data: data array, (n, d)
+    # OUTPUT:
+    # ACG object with estimated parameter
     n, d = np.shape(axial_data)
     if d == 3:
         det = det_3_by_3

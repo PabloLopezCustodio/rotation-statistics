@@ -1,3 +1,9 @@
+# Class and functions for the Matrix Fisher distribution
+# For details, see the paper:
+# Lopez-Custodio PC, 2025, "A cheatsheet for probability distributions of orientational data", preprint: https://arxiv.org/abs/2412.08934
+# author: Pablo Lopez-Custodio, pablo.lopez-custodio@ntu.ac.uk
+# Some of the functions of this script are based on the Matlab library: https://github.com/tylee-fdcl/Matrix-Fisher-Distribution.git
+
 import numpy as np
 from numpy import linalg as LA
 from numpy import pi as PI
@@ -37,6 +43,7 @@ def dc_k(s):
     return res[0]
 
 class M_Fisher:
+    # Class for the Matrix-Fisher distribution
     # F = concentration matrix R^(3x3)
     # Up = proper U O(3)
     # Vp = proper V O(3)
@@ -102,16 +109,32 @@ class M_Fisher:
 
     def d_MFisher(self, R):
         # density at R
+        # INPUT:
+        # R: Rotation matrix, (3,3), or list of rotation matices
+        # OUTPUT:
+        # (n,) or scalar
         if self.F is None:
             raise Exception("concentration matrix not set")
         if self.c is None:
             self.set_c()
-        return np.exp(np.trace(np.matmul(self.F.T, R)))/self.c
+        if np.size(R) == 9:
+            R_ = np.reshape(R,(3,3))
+            den = np.exp(np.trace(np.matmul(self.F.T, R_))) / self.c
+        else:
+            den = np.zeros(len(R))
+            for i, R_ in enumerate(R):
+                den[i] = np.exp(np.trace(np.matmul(self.F.T, R_))) / self.c
+        return den
 
     def d_MFisher_unprot(self, R):
         return np.exp(np.trace(np.matmul(self.F.T, R))) / self.c
 
     def r_MFisher(self, n):
+        # draws samples from the ESAG distribution
+        # INPUT:
+        # n: number of samples
+        # OUTPUT:
+        # list of n rotation matrices
         tr_S = np.sum(self.s)
         B = np.diag([2*self.s[0]-tr_S, 2*self.s[1]-tr_S, 2*self.s[2]-tr_S, tr_S])
         D_bingham = Bingham(B)
@@ -122,6 +145,14 @@ class M_Fisher:
         return Rs
 
     def view_MFisher(self, n_points=100, combine=True, hold_show=False, el=30, az=45, renorm_den=None, title="Matrix Fisher density map"):
+        # plots a visualisation of the Matrix-Fisher distribution.
+        # INPUT:
+        # n_points: number of points to create grid
+        # combine: combine the density map of the three axes in one single plot
+        # hold_show: do not run 'plt.show()'
+        # el, az: elevation and azimuth of view
+        # renorm_den: renormalise density by this factor of the maximum density
+        # title: plot title
         print('preparing visualisation plot for', title, '....')
         if self.F is None:
             raise Exception("concentration matrix not set")
@@ -217,7 +248,11 @@ class M_Fisher:
         return res[0]/(2*PI)
 
 def fit_MFisher(Rs, return_error=False):
-    # Rs: a list of (3,3)-np.arrays
+    # fits a Matrix-Fisher distribution to data
+    # INPUT:
+    # Rs: list of rotation matrices
+    # OUTPUT:
+    # Mat_Fisher object with estimated parameter
     R_bar = emp_mean(Rs)
     U, d, Vt = np.linalg.svd(R_bar)
     ind = np.flip(np.argsort(d))

@@ -1,3 +1,8 @@
+# Class and functions for the Gaussian in the tangent space of S^{d-1} considering antipodal symmetry
+# For details, see the paper:
+# Lopez-Custodio PC, 2025, "A cheatsheet for probability distributions of orientational data", preprint: https://arxiv.org/abs/2412.08934
+# author: Pablo Lopez-Custodio, pablo.lopez-custodio@ntu.ac.uk
+
 import numpy as np
 from numpy import linalg as LA
 from numpy import pi as PI
@@ -9,6 +14,7 @@ from scipy.stats import multivariate_normal
 from scipy import integrate
 
 class TS_Gaussian:
+    # Class for the Gaussian in the tangent space of S^{d-1}
     # d: dimension of ambient space
     # b: base point of tangent space, in S^{d-1}. (d,), (d,1), (1,d)
     # Sigma: covariance matrix. (d-1, d-1)
@@ -46,22 +52,34 @@ class TS_Gaussian:
             self.det = LA.det
 
     def d_TSG(self, X):
+        # density at X
+        # INPUT:
+        # X: points in S^{d-1}, array (d,), (n,d)
+        # OUTPUT:
+        # (n,) or scalar
         if self.D_mvn is None or self.Tb is None:
             raise Exception('Parameters are not defined')
-        if np.ndim(X) == 1:
-            X = np.array([X])
-        if X.shape[1] != self.d:
-            raise Exception(f'x must be a {self.d}-dimensional vector')
-        Z = np.zeros_like(X)
-        for i, x in enumerate(X):
-            Z[i] = log_S(self.b, x if np.dot(self.b,x) > 0 else -x)
-        return self.D_mvn.pdf(np.matmul(Z, self.Tb))
+        if np.size(X) == self.d:
+            x = np.reshape(X,(self.d,))
+            z = np.matmul(log_S(self.b, x if np.dot(self.b, x) > 0 else -x), self.Tb)
+            den = self.D_mvn.pdf(z)
+        else:
+            Z = np.zeros_like(X)
+            for i, x in enumerate(X):
+                Z[i,:] = log_S(self.b, x if np.dot(self.b, x) > 0 else -x)
+            den = self.D_mvn.pdf(np.matmul(Z, self.Tb))
+        return den
 
     def d_TSG_unprot(self, x):
         z = np.matmul(log_S(self.b, x if np.dot(self.b,x) > 0 else -x), self.Tb)
         return self.D_mvn.pdf(z)
 
     def r_TSG(self, n):
+        # draws n random samples from the Gaussian in the tangent space
+        # INPUT:
+        # n: number of samples
+        # OUTPUT:
+        # samples in S^{d-1}, (n,d)
         Y = np.matmul(self.D_mvn.rvs(n), self.Tb.T)
         X = np.zeros_like(Y)
         for i in range(n):
@@ -69,6 +87,14 @@ class TS_Gaussian:
         return X
 
     def view_TSG(self, n_points=100, combine=True, hold_show=False, el=30, az=45, renorm_den=None, title="ESAG density map"):
+        # plots a visualisation of the Gaussian in the tangent space of S^{d-1} for d=3 and d=4
+        # INPUT:
+        # n_points: number of points to create grid
+        # combine: for d=4, combine the density map of the three axes in one single plot
+        # hold_show: do not run 'plt.show()'
+        # el, az: elevation and azimuth of view
+        # renorm_den: renormalise density by this factor of the maximum density
+        # title: plot title
         print('preparing visualisation plot for', title, '....')
         if self.D_mvn is None:
             raise Exception("distribution parameters are not defined")
@@ -184,7 +210,11 @@ class TS_Gaussian:
 
 
 def fit_TSG(X):
-    # X has shape (n,d)
+    # fits a Gaussian in the tangent space of S^{d-1} to data
+    # INPUT:
+    # X: data array (n, d)
+    # OUTPUT:
+    # TS_Gaussian object with estimated parameter
     n, d = X.shape
     S = np.matmul(X.T, X) / n
     e, V = LA.eigh(S)

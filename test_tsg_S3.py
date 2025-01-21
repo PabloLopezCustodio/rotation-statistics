@@ -1,4 +1,7 @@
 # This script tests the Gaussian in the tangent space of S^3 (d=4)
+# For details, see the paper:
+# Lopez-Custodio PC, 2025, "A cheatsheet for probability distributions of orientational data", preprint: https://arxiv.org/abs/2412.08934
+# author: Pablo Lopez-Custodio, pablo.lopez-custodio@ntu.ac.uk
 
 import numpy as np
 import matplotlib.pyplot as plt
