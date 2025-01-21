@@ -1,5 +1,7 @@
 # rotstats: a Python library for probability distributions of orientational data
 
+![cover](images/intro.png)
+
 This package includes several models for probability distributions of orientational data. Orientational data here refers to any type of data that defines the orientation of a rigid body with respect to an inertial coordinate system. These orientations can be achieved by 1-DOF rotations (rotations about a fixed axis, data is in $S^1$), 2-DOF rotations (elevation and azimuth, data is in $S^2$), or full 3-DOF rotations (data is in $S^3$ or SO(3), i.e. quaternions or rotation matrices).
 
 This package offers functions for models for data in $S^2$, $S^3$ (with and without antipodal symmetry) and SO(3). Hance the data can be unit vectors, quaternions or rotation matrices.
