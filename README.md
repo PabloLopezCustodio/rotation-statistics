@@ -10,7 +10,7 @@ For each model, functions for density, simulation (sampling), and fitting to dat
 
 Currently, the following models are included:
 
-- **Angular Central Gaussian distribution (ACG)**. Supports $S^{d-1}$ with antipodal symmetry. Ideal for quaternions (d=3).
+- **Angular Central Gaussian distribution (ACG)**. Supports $S^{d-1}$ with antipodal symmetry. Ideal for quaternions (d=4).
 - **Matrix Fisher distribution**. Supports SO(3). Ideal for rotation matrices.
 - **Bingham distribution**. Currently only $S^3$ with antipodal symmetry is supported, i.e. for quaternions.
 - **Elliptically Symmetric Angular Gaussian distribution (ESAG)**. Currently only $S^2$ is supported, i.e. for unit vectors in $R^3$. 
