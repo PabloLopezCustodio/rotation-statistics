@@ -231,8 +231,12 @@ def fit_TSG(X, antipodal_sym=True):
     S = np.matmul(X.T, X) / n
     e, V = LA.eigh(S)
     b = V[:,np.argmax(e)]
-    if np.sum(np.where(b < 0, 1, 0)) > d/2:
-        b = -b
+    if antipodal_sym:
+        if np.sum(np.where(b < 0, 1, 0)) > d/2:
+            b = -b
+    else:
+        if np.dot(np.sum(X, axis=0), b) < 0:
+            b = -b
     X = correct_sign(b, X)
     Y = np.zeros_like(X)
     for i in range(n):
