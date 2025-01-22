@@ -20,13 +20,15 @@ class TS_Gaussian:
     # Sigma: covariance matrix. (d-1, d-1)
     # Tb: basis transformation from R^{d} to R^{d-1}. (d, d-1)
     # D_mvn: scipy.stats.multivariate_normal object for the Gaussian in the tangent space
-    def __init__(self, b=None, Sigma=None, Tb=None):
+    # antipodal_sym: if True, the distribution has antipodal symmetry
+    def __init__(self, b=None, Sigma=None, Tb=None, antipodal_sym=True):
         self.d = None
         self.b = None
         self.Sigma = None
         self.det = None
         self.Tb = Tb
         self.D_mvn = None
+        self.antipodal_sym = antipodal_sym
         if Sigma is not None and b is not None and Tb is not None:
             self.set_param(b, Sigma, Tb)
 
@@ -61,17 +63,26 @@ class TS_Gaussian:
             raise Exception('Parameters are not defined')
         if np.size(X) == self.d:
             x = np.reshape(X,(self.d,))
-            z = np.matmul(log_S(self.b, x if np.dot(self.b, x) > 0 else -x), self.Tb)
+            if self.antipodal_sym:
+                z = np.matmul(log_S(self.b, x if np.dot(self.b, x) > 0 else -x), self.Tb)
+            else:
+                z = np.matmul(log_S(self.b, x), self.Tb)
             den = self.D_mvn.pdf(z)
         else:
             Z = np.zeros_like(X)
             for i, x in enumerate(X):
-                Z[i,:] = log_S(self.b, x if np.dot(self.b, x) > 0 else -x)
+                if self.antipodal_sym:
+                    Z[i,:] = log_S(self.b, x if np.dot(self.b, x) > 0 else -x)
+                else:
+                    Z[i,:] = log_S(self.b, x)
             den = self.D_mvn.pdf(np.matmul(Z, self.Tb))
         return den
 
     def d_TSG_unprot(self, x):
-        z = np.matmul(log_S(self.b, x if np.dot(self.b,x) > 0 else -x), self.Tb)
+        if self.antipodal_sym:
+            z = np.matmul(log_S(self.b, x if np.dot(self.b,x) > 0 else -x), self.Tb)
+        else:
+            z = np.matmul(log_S(self.b, x), self.Tb)
         return self.D_mvn.pdf(z)
 
     def r_TSG(self, n):
@@ -209,10 +220,11 @@ class TS_Gaussian:
         return res[0]/(2*PI)
 
 
-def fit_TSG(X):
+def fit_TSG(X, antipodal_sym=True):
     # fits a Gaussian in the tangent space of S^{d-1} to data
     # INPUT:
     # X: data array (n, d)
+    # antipodal_sym: if True, the fitted model has antipodal symmetry
     # OUTPUT:
     # TS_Gaussian object with estimated parameter
     n, d = X.shape
@@ -231,5 +243,5 @@ def fit_TSG(X):
     Z = np.matmul(Y, Tb)
     #Sigma = np.cov(Z.T)
     Sigma = np.diag(np.var(Z, axis=0, ddof=1))
-    return TS_Gaussian(b, Sigma, Tb)
+    return TS_Gaussian(b, Sigma, Tb, antipodal_sym)
 
