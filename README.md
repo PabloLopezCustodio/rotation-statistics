@@ -35,7 +35,7 @@ Each model has a class. To define a distribution an object of the corresponding 
 - `M_Fisher(F=F)` or `M_Fisher(U=U,V=V,s=s)`: `F` is the concentration matrix ($R^{3\times 3}$) while `U`, `V`, `s` correspond to its SVD, i.e. $F=USV^T$, with `s` containing the diagonal elements of $S$.
 - `Bingham(B)`: `B` is the concentration matrix, an SPD($d$) matrix.
 - `ESAG(mu=mu, gamma=gamma)` or `ESAG(mu=mu, rho=rho, psi=psi)`: `mu` is the parameter $\mu\in R^3$. `gamma` is the parameter vector $(\gamma_1, \gamma_2)\in R^2$. `rho` and `psi` provide the geometric parametrisation with $\rho$ being the concentration parameter and $\psi$ the rotation of principal axes.
-- `TS_Gaussian(Sigma, b, Tb)`: `b` is the base point, i.e. the mean $b\in S^{d-1}$; `Tb` is a $R^{d\times(d-1)}$ matrix whose columns are the principal axes of the Gaussian. Hence, $[b$ $T_b]$ is in SO($d$) and the covariance matrix `Sigma` is diagonal.
+- `TS_Gaussian(Sigma, b, Tb, antipodal_sym)`: `b` is the base point, i.e. the mean $b\in S^{d-1}$; `Tb` is a $R^{d\times(d-1)}$ matrix whose columns are the principal axes of the Gaussian. Hence, $[b$ $T_b]$ is in SO($d$) and the covariance matrix `Sigma` is diagonal. Set `antipodal_sym` to `True` (default) to force antipodal symmetry in the distribution.
 
 The available functions are presented here for the case of the ACG distribution. For the other models, replace `ACG` for:
 - `MFisher` for Matrix Fisher.
