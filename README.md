@@ -75,6 +75,6 @@ The following scripts analyse the data from the experiments presented in Section
 ## To Do
 
 - Make sure the Bingham implementation works for $S^2$.
-- Either improve interpolation in the lookup table to compute the normalising constant and MLE, or change implementation to use the Cython integrands from the Matrix-Fisher distribution.
+- For Bingham, either improve interpolation in the lookup table to compute the normalising constant and MLE, or change implementation to use the Cython integrands from the Matrix-Fisher distribution.
 
 
