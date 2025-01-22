@@ -28,7 +28,7 @@ cd rotation-statistics
 pip install -e .
 ```
 
-Python 3 is required. The package was tested on Python 3.12.
+Python 3 is required. The package was tested with Python 3.12.
 
 ## Usage
 
