@@ -1,7 +1,7 @@
 # This script tests the ACG distribution for S^3 (d=4)
 # For details, see the paper:
 # Lopez-Custodio PC, 2025, "A cheatsheet for probability distributions of orientational data", preprint: https://arxiv.org/abs/2412.08934
-# author: Pablo Lopez-Custodio, pablo.lopez-custodio@ntu.ac.uk
+# coded by: Pablo Lopez-Custodio, pablo.lopez-custodio@ntu.ac.uk
 
 import numpy as np
 import rotstats.bingham as bingham

@@ -1,7 +1,7 @@
 # Class and functions for the Matrix Fisher distribution
 # For details, see the paper:
 # Lopez-Custodio PC, 2025, "A cheatsheet for probability distributions of orientational data", preprint: https://arxiv.org/abs/2412.08934
-# author: Pablo Lopez-Custodio, pablo.lopez-custodio@ntu.ac.uk
+# coded by: Pablo Lopez-Custodio, pablo.lopez-custodio@ntu.ac.uk
 # Some of the functions of this script are based on the Matlab library: https://github.com/tylee-fdcl/Matrix-Fisher-Distribution.git
 
 import numpy as np

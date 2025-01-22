@@ -1,7 +1,7 @@
 # Class and functions for the Bingham distribution
 # For details, see the paper:
 # Lopez-Custodio PC, 2025, "A cheatsheet for probability distributions of orientational data", preprint: https://arxiv.org/abs/2412.08934
-# author: Pablo Lopez-Custodio, pablo.lopez-custodio@ntu.ac.uk
+# coded by: Pablo Lopez-Custodio, pablo.lopez-custodio@ntu.ac.uk
 # The table to compute the normalising constant and MLE was generated from the tables in the C and Matlab library:
 # https://github.com/SebastianRiedel/bingham.git
 

@@ -1,7 +1,7 @@
 # Class and functions for the Angular Central Distribution (ACG)
 # For details, see the paper:
 # Lopez-Custodio PC, 2025, "A cheatsheet for probability distributions of orientational data", preprint: https://arxiv.org/abs/2412.08934
-# author: Pablo Lopez-Custodio, pablo.lopez-custodio@ntu.ac.uk
+# coded by: Pablo Lopez-Custodio, pablo.lopez-custodio@ntu.ac.uk
 
 import numpy as np
 from numpy import linalg as LA

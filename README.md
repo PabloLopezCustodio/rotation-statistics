@@ -28,6 +28,8 @@ cd rotation-statistics
 pip install -e .
 ```
 
+Python 3 is required. The package was tested on Python 3.12.
+
 ## Usage
 
 Each model has a class. To define a distribution an object of the corresponding class can be initialised in different ways depending on the model's parameters, see the [accompanying paper](https://arxiv.org/abs/2412.08934) for more information.
